@@ -5,19 +5,21 @@ import { useNavigate } from "react-router-dom";
 
 function LevelCard({ levelData, levelNo, locked }) {
   const navigate = useNavigate();
+
   return (
     <div
-      className={`${locked ? "bg-gray-100" : "bg-white"} m-2 drop-shadow-lg rounded-lg h-52`}
+      className={`${locked ? "bg-gray-100" : "bg-white"} m-2 drop-shadow-lg rounded-xl h-52 ${!locked ? "hover:scale-105" : ""}`}
       onClick={() => {
-        console.log(levelData.levelId);
-        if (!locked) navigate(`/level/${levelData.levelId}`);
+        // console.log(levelData.levelId);
+
+        if (!locked) navigate(`/level/${levelNo}`);
       }}
     >
       <div className="w-full h-12 flex justify-between pt-1 ">
-        <div className="text-4xl w-10 font-bold text-gray-600 ">{levelNo}</div>
+        <div className="text-4xl w-10 font-bold text-gray-600 px-2">{levelNo}</div>
         {locked || (
-          <div className="translate-y-3">
-            <h1 className="text-2xl">{levelData.score}</h1>score
+          <div className="translate-y-3 text-gray-600">
+            <h1 className="text-2xl font-bold">{levelData.score}</h1>score
           </div>
         )}
         <div className="w-10 pt-1">{locked && <Icon name="lock" />}</div>

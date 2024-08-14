@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerService } from "../Api/service";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../store/userSlice";
+
 function Register() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const handleSubmit = () => {
     registerService(fullName, userEmail, userName, password)
       .then(response => response.json())
@@ -10,6 +15,7 @@ function Register() {
         if (response.success) {
           localStorage.setItem("accessToken", response.data.accessToken);
           localStorage.setItem("refreshToken", response.data.refreshToken);
+          dispatch(setUserData(response.data.user));
           navigate("/level");
         }
       })

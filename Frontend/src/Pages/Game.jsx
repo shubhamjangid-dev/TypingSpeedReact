@@ -1,15 +1,26 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import FormatLetter from "../components/FormatLetter";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getLevelContent, submitResult } from "../Api/service";
+import { useSelector } from "react-redux";
+import Result from "../components/Result";
 function Game() {
-  const { levelId } = useParams();
+  const navigate = useNavigate();
+
+  const { levelNo } = useParams();
   const [words, setWords] = useState("abcd");
+  const levelArray = useSelector(state => state.userData.levelArray);
+  const levelId = levelArray[levelNo - 1].levelId;
+  const [levelname, setLevelname] = useState("");
+  console.log();
 
   const callApi = useCallback(() => {
     getLevelContent(levelId)
       .then(response => response.json())
-      .then(result => setWords(result.levelContent));
+      .then(result => {
+        setWords(result.levelContent);
+        setLevelname(result.levelName);
+      });
   });
 
   useEffect(() => {
@@ -20,16 +31,28 @@ function Game() {
   const charRef = useRef([]);
 
   const [start, setStart] = useState([false, new Date()]);
+  const [gameEnd, setGameEnd] = useState(false);
 
   const [charIndex, setCharIndex] = useState(0);
   const [correctChar, setCorrectChar] = useState([]);
   const [correctCharacters, setCorrectCharacters] = useState(0);
+  const [replacedCharacters, setReplacedCharacters] = useState(0);
   const [wordCount, setWordCount] = useState(0);
+
+  const [margin, setMargin] = useState(0);
+
   let accuracy = charIndex == 0 ? 0 : ((correctCharacters / charIndex) * 100).toFixed(1);
   let wordPerMinute = Math.floor((wordCount / (new Date() - start[1])) * 1000 * 60);
-  let time = start[0] ? Math.floor((new Date() - start[1]) / 1000) : 0;
   let length = words.length;
 
+  if (charIndex == length && !gameEnd) {
+    // submit
+    setGameEnd(true);
+    if (accuracy >= 80 && wordPerMinute >= 10)
+      submitResult(levelId, wordPerMinute)
+        .then(response => response.json())
+        .then(response => {});
+  }
   useEffect(() => {
     inputRef.current.focus();
     setCorrectChar(Array(charRef.current.length).fill(""));
@@ -43,12 +66,19 @@ function Game() {
     const currentChar = charRef.current[charIndex];
     const typedChar = e.target.value.slice(-1);
     // console.log(typedChar, " ", currentChar.textContent);
+    // console.log(correctChar);
 
     if (e.nativeEvent.inputType === "deleteContentBackward") {
       // Handle backspace
       if (charIndex > 0) {
         setCharIndex(charIndex - 1);
-        correctChar[charIndex - 1] = ""; // Reset the previous character's class
+
+        if (correctChar[charIndex - 1] == "incorrect") {
+          correctChar[charIndex - 1] = "replaced";
+        } else {
+          correctChar[charIndex - 1] = ""; // Reset the previous character's class
+          setCorrectCharacters(correctCharacters - 1);
+        }
         if (charRef.current[charIndex - 1].textContent === " ") {
           setWordCount(wordCount - 1);
         }
@@ -56,59 +86,88 @@ function Game() {
     } else if (charIndex < length) {
       // Handle normal character input
       if (typedChar === currentChar.textContent) {
-        correctChar[charIndex] = "text-green-700 bg-green-200";
+        if (correctChar[charIndex] == "replaced") {
+          correctChar[charIndex] = "replacedcorrect";
+          setReplacedCharacters(replacedCharacters + 1);
+        } else correctChar[charIndex] = "correct";
         setCorrectCharacters(correctCharacters + 1);
       } else {
-        correctChar[charIndex] = "text-red-700 bg-red-200";
+        correctChar[charIndex] = "incorrect";
       }
       if (currentChar.textContent === " ") {
         setWordCount(wordCount + 1);
       }
       setCharIndex(charIndex + 1);
-    } else {
-      // submit
-      console.log("end");
-      submitResult(levelId, wordPerMinute)
-        .then(response => response.json())
-        .then(response => {
-          console.log(response);
-        });
+    }
+
+    if (currentChar.offsetTop >= 100) {
+      setMargin(margin - 60);
+    } else if (currentChar.offsetTop < 20 && margin < 0) {
+      setMargin(margin + 60);
     }
   };
 
   return (
     <>
-      <div className="w-full bg-white">
-        <div className="w-4/5 mx-auto text-left">{time}sec</div>
-        <div className="h-52 w-4/5 mx-auto">
-          <div className="w-full text-left flex flex-col ">
+      {gameEnd && (
+        <div className="flex w-1/2 fixed z-10 top-1/4 left-1/4 drop-shadow-xl">
+          <Result
+            fail={accuracy < 80 ? 1 : wordPerMinute < 10 ? 2 : 0}
+            data={{
+              accuracy,
+              realAccuracy: (((correctCharacters - replacedCharacters) / charIndex) * 100).toFixed(1),
+              wordPerMinute,
+              time: Math.floor((new Date() - start[1]) / 1000),
+              levelNo,
+            }}
+          />
+        </div>
+      )}
+      <div className={`w-full bg-white ${gameEnd ? "blur-sm" : " "}`}>
+        <div className="w-4/5 h-10 mx-auto text-left  py-2">
+          <div className="w-full h-5 text-xl font-thin">
+            Level {levelNo} : {levelname}{" "}
+          </div>
+          <div className="w-[8%] h-40 text-lg px-2 pb-3 bg-blue-500 -translate-x-[130%] -translate-y-7 rounded-b-xl flex flex-col-reverse text-white font">Start Typing</div>
+        </div>
+        <div className="h-60 w-4/5 mx-auto">
+          <div className="w-full text-left flex flex-col">
             <input
               type="text"
-              className=""
+              className="w-1/2 m-auto"
               ref={inputRef}
-              onChange={handleInput}
+              onChange={!gameEnd ? handleInput : null}
             />
-            <div className="font-mono bg-white rounded-xl drop-shadow-xl  text-gray-500 text-3xl leading-relaxed h-52 p-3 overflow-clip">
-              {words &&
-                words.split("").map((letter, index) => (
-                  <FormatLetter
-                    letter={letter}
-                    key={index}
-                    charRef={charRef}
-                    index={index}
-                    className={`${charIndex == index ? "border-b-4 border-blue-500" : ""} ${correctChar[index]}`}
-                  />
-                ))}
+            <div
+              className="font-mono bg-white rounded-xl drop-shadow-xl  text-gray-500 text-4xl leading-relaxed h-52 px-3 py-5 overflow-clip mt-[-30px]"
+              onClick={() => inputRef.current.focus()}
+            >
+              <div
+                className="w-full"
+                style={{ marginTop: margin }}
+              >
+                {words &&
+                  words.split("").map((letter, index) => (
+                    <FormatLetter
+                      letter={letter}
+                      key={index}
+                      charRef={charRef}
+                      index={index}
+                      className={`${charIndex == index ? "border-b-4 border-blue-500" : ""}`}
+                      isCorrect={correctChar[index]}
+                    />
+                  ))}
+              </div>
             </div>
           </div>
 
           <div className="flex justify-end">
             <div className="flex flex-col w-full md:w-1/2 lg:w-1/4 text-blue-400">
-              <div className="w-full bg-white rounded-xl drop-shadow-xl mt-2">
-                <h1>{accuracy}%</h1>Accuracy
+              <div className="w-full bg-white rounded-xl drop-shadow-xl mt-2 py-2">
+                <h1 className="text-2xl">{accuracy}%</h1>Accuracy
               </div>
-              <div className="w-full bg-white rounded-xl drop-shadow-xl mt-2">
-                <h1>{wordPerMinute}</h1>Words per Minute
+              <div className="w-full bg-white rounded-xl drop-shadow-xl mt-2 py-2">
+                <h1 className="text-2xl">{wordPerMinute}</h1>Speed
               </div>
             </div>
           </div>

@@ -1,9 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { loginService } from "../Api/service";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserData } from "../store/userSlice";
+
 function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.userData.userData);
+  console.log(user);
+
+  useEffect(() => {
+    dispatch(setUserData(user));
+  }, [user]);
   const handleSubmit = () => {
     loginService(userName, password)
       .then(response => response.json())
@@ -11,6 +21,7 @@ function Login() {
         if (response.success) {
           localStorage.setItem("accessToken", response.data.accessToken);
           localStorage.setItem("refreshToken", response.data.refreshToken);
+          user == response.data.user;
           navigate("/level");
         }
       })
