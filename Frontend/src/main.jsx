@@ -10,7 +10,8 @@ import Game from "./Pages/Game.jsx";
 import Login from "./Pages/Login.jsx";
 import Register from "./Pages/Register.jsx";
 import Home from "./Pages/Home.jsx";
-
+import AuthLayout from "./components/AuthLayout.jsx";
+import Profile from "./Pages/Profile.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -22,19 +23,43 @@ const router = createBrowserRouter([
       },
       {
         path: "/login",
-        element: <Login />,
+        element: (
+          <AuthLayout authentication={false}>
+            <Login />
+          </AuthLayout>
+        ),
       },
       {
         path: "/register",
-        element: <Register />,
+        element: (
+          <AuthLayout authentication={false}>
+            <Register />
+          </AuthLayout>
+        ),
       },
       {
         path: "/level",
-        element: <LevelBar />,
+        element: (
+          <AuthLayout authentication={true}>
+            <LevelBar />
+          </AuthLayout>
+        ),
       },
       {
         path: "/level/:levelNo",
-        element: <Game />,
+        element: (
+          <AuthLayout authentication={true}>
+            <Game />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/profile",
+        element: (
+          <AuthLayout authentication={true}>
+            <Profile />
+          </AuthLayout>
+        ),
       },
     ],
   },

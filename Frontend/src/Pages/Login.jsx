@@ -4,16 +4,23 @@ import { loginService } from "../Api/service";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserData } from "../store/userSlice";
-
+import { refreshAccessToken } from "../Api/service";
 function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector(state => state.userData.userData);
-  console.log(user);
 
   useEffect(() => {
-    dispatch(setUserData(user));
-  }, [user]);
+    refreshAccessToken()
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          localStorage.setItem("accessToken", result.data.accessToken);
+          localStorage.setItem("refreshToken", result.data.refreshToken);
+          dispatch(setUserData(result.data.user));
+          navigate("/");
+        }
+      });
+  }, []);
   const handleSubmit = () => {
     loginService(userName, password)
       .then(response => response.json())
@@ -21,8 +28,8 @@ function Login() {
         if (response.success) {
           localStorage.setItem("accessToken", response.data.accessToken);
           localStorage.setItem("refreshToken", response.data.refreshToken);
-          user == response.data.user;
-          navigate("/level");
+          dispatch(setUserData(response.data.user));
+          navigate("/");
         }
       })
       .catch(error => {

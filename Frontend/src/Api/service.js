@@ -1,5 +1,7 @@
+const backend_host_url = import.meta.env.VITE_BACKEND_HOST_URL;
+
 const allLevels = async function () {
-  return await fetch("http://localhost:4500/api/v1/levels/getAllLevels", {
+  return await fetch(`${backend_host_url}/levels/getAllLevels`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -11,7 +13,7 @@ const allLevels = async function () {
 };
 
 const getLevelContent = async function (levelId) {
-  return await fetch("http://localhost:4500/api/v1/levels/getLevelContent", {
+  return await fetch(`${backend_host_url}/levels/getLevelContent`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -23,7 +25,7 @@ const getLevelContent = async function (levelId) {
 };
 
 const submitResult = async function (levelId, score) {
-  return await fetch("http://localhost:4500/api/v1/score/submit", {
+  return await fetch(`${backend_host_url}/score/submit`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -37,7 +39,7 @@ const submitResult = async function (levelId, score) {
 };
 
 const loginService = async function (username, password) {
-  return await fetch("http://localhost:4500/api/v1/users/login", {
+  return await fetch(`${backend_host_url}/users/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -49,7 +51,7 @@ const loginService = async function (username, password) {
   }).catch(error => console.error(error));
 };
 const registerService = async function (fullname, email, username, password) {
-  return await fetch("http://localhost:4500/api/v1/users/register", {
+  return await fetch(`${backend_host_url}/users/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -63,16 +65,39 @@ const registerService = async function (fullname, email, username, password) {
   }).catch(error => console.error(error));
 };
 const logoutService = async function () {
-  return await fetch("http://localhost:4500/api/v1/users/logout", {
+  return await fetch(`${backend_host_url}/users/logout`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      userName,
-      password,
+      accessToken: localStorage.getItem("accessToken"),
     }),
   }).catch(error => console.error(error));
 };
 
-export { allLevels, getLevelContent, submitResult, loginService, registerService, logoutService };
+const getCurrentUser = async function (accessToken) {
+  return await fetch(`${backend_host_url}/users/currentuser`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accessToken,
+    }),
+  }).catch(error => console.error(error));
+};
+
+const refreshAccessToken = async function () {
+  return await fetch(`${backend_host_url}/users/refresh-token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      refreshToken: localStorage.getItem("refreshToken"),
+    }),
+  }).catch(error => console.error(error));
+};
+
+export { allLevels, getLevelContent, submitResult, loginService, registerService, logoutService, getCurrentUser, refreshAccessToken };

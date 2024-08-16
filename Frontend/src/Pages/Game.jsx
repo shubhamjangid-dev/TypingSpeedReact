@@ -1,31 +1,53 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import FormatLetter from "../components/FormatLetter";
 import { useNavigate, useParams } from "react-router-dom";
-import { getLevelContent, submitResult } from "../Api/service";
-import { useSelector } from "react-redux";
+import { allLevels, getLevelContent, submitResult } from "../Api/service";
+import { useDispatch, useSelector } from "react-redux";
 import Result from "../components/Result";
+import Header from "../components/Header";
+import Loader from "../components/Loader";
+import { setLevelArray } from "../store/userSlice";
 function Game() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [loading, setLoading] = useState(true);
 
   const { levelNo } = useParams();
   const [words, setWords] = useState("abcd");
   const levelArray = useSelector(state => state.userData.levelArray);
-  const levelId = levelArray[levelNo - 1].levelId;
+  const [levelId, setLevelId] = useState(levelArray[levelNo - 1]?.levelId);
   const [levelname, setLevelname] = useState("");
   console.log();
 
+  useEffect(() => {
+    console.log(loading);
+    if (levelArray.length == 0)
+      allLevels()
+        .then(response => response.json())
+        .then(result => {
+          setLevelId(result[levelNo - 1].levelId);
+          dispatch(setLevelArray(result));
+        });
+  }, []);
   const callApi = useCallback(() => {
+    console.log(loading);
     getLevelContent(levelId)
       .then(response => response.json())
       .then(result => {
-        setWords(result.levelContent);
-        setLevelname(result.levelName);
+        if (result) {
+          setWords(result.levelContent || "err");
+          setLevelname(result.levelName || "err");
+        }
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  });
+  }, [levelId]);
 
   useEffect(() => {
     callApi();
-  }, []);
+  }, [levelId]);
 
   const inputRef = useRef(null);
   const charRef = useRef([]);
@@ -42,7 +64,7 @@ function Game() {
   const [margin, setMargin] = useState(0);
 
   let accuracy = charIndex == 0 ? 0 : ((correctCharacters / charIndex) * 100).toFixed(1);
-  let wordPerMinute = Math.floor((wordCount / (new Date() - start[1])) * 1000 * 60);
+  let wordPerMinute = start[0] == false ? 0 : Math.floor((wordCount / (new Date() - start[1])) * 1000 * 60);
   let length = words.length;
 
   if (charIndex == length && !gameEnd) {
@@ -54,9 +76,11 @@ function Game() {
         .then(response => {});
   }
   useEffect(() => {
-    inputRef.current.focus();
-    setCorrectChar(Array(charRef.current.length).fill(""));
-  }, []);
+    if (!loading) {
+      inputRef.current.focus();
+      setCorrectChar(Array(charRef.current.length).fill(""));
+    }
+  }, [loading]);
 
   const handleInput = e => {
     if (start[0] == false) {
@@ -110,7 +134,7 @@ function Game() {
   return (
     <>
       {gameEnd && (
-        <div className="flex w-1/2 fixed z-10 top-1/4 left-1/4 drop-shadow-xl">
+        <div className="flex fixed z-10 top-1/2 left-1/2 drop-shadow-xl -translate-x-1/2 -translate-y-1/2">
           <Result
             fail={accuracy < 80 ? 1 : wordPerMinute < 10 ? 2 : 0}
             data={{
@@ -128,7 +152,7 @@ function Game() {
           <div className="w-full h-5 text-xl font-thin">
             Level {levelNo} : {levelname}{" "}
           </div>
-          <div className="w-[8%] h-40 text-lg px-2 pb-3 bg-blue-500 -translate-x-[130%] -translate-y-7 rounded-b-xl flex flex-col-reverse text-white font">Start Typing</div>
+          <div className="w-[8%] h-40 text-lg px-2 pb-3 bg-blue-500 -translate-x-[130%] -translate-y-7 rounded-b-xl flex flex-col-reverse text-white ">Start Typing</div>
         </div>
         <div className="h-60 w-4/5 mx-auto">
           <div className="w-full text-left flex flex-col">
@@ -143,7 +167,7 @@ function Game() {
               onClick={() => inputRef.current.focus()}
             >
               <div
-                className="w-full"
+                className="w-full "
                 style={{ marginTop: margin }}
               >
                 {words &&

@@ -8,7 +8,7 @@ function LevelCard({ levelData, levelNo, locked }) {
 
   return (
     <div
-      className={`${locked ? "bg-gray-100" : "bg-white"} m-2 drop-shadow-lg rounded-xl h-52 ${!locked ? "hover:scale-105" : ""}`}
+      className={`${locked ? "bg-gray-100" : "bg-white"} m-2 drop-shadow-lg rounded-xl h-52 ${!locked ? "hover:scale-110 transition ease-out duration-300 " : "cursor-not-allowed"}`}
       onClick={() => {
         // console.log(levelData.levelId);
 
