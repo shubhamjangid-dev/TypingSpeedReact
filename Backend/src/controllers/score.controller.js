@@ -22,25 +22,31 @@ const submitResult = asyncHandler(async (req, res) => {
   if (!userExist) {
     throw new ApiError(409, "User not found");
   }
-
   // if level is already completed
   const resultExist = await LevelAchieved.findOne({
     level: levelExist._id,
     user: userExist._id,
   });
+  let scoreToBeAdded = score;
   if (resultExist != null) {
-    const storedResult = await LevelAchieved.findByIdAndUpdate(
-      resultExist._id,
-      {
-        $set: {
-          score: score,
+    if (resultExist.score < score) {
+      scoreToBeAdded = score - resultExist.score;
+      const storedResult = await LevelAchieved.findByIdAndUpdate(
+        resultExist._id,
+        {
+          $set: {
+            score: score,
+          },
         },
-      },
-      {
-        new: true,
-      }
-    );
-    res.status(201).json(new ApiResponse(200, storedResult, "Result Updated Successfully"));
+        {
+          new: true,
+        }
+      );
+      userExist.totalScore += scoreToBeAdded;
+      await userExist.save({ validateBeforeSave: false });
+
+      res.status(201).json(new ApiResponse(200, storedResult, "Result Updated Successfully"));
+    }
   } else {
     const levelAchieved = await LevelAchieved.create({
       level: levelExist._id,
@@ -53,6 +59,10 @@ const submitResult = asyncHandler(async (req, res) => {
     if (!createdResult) {
       throw new ApiError(500, "Somthing went wrong while submitting score data to database");
     }
+
+    userExist.totalScore += scoreToBeAdded;
+    userExist.numberOfLevelsPassed += 1;
+    await userExist.save({ validateBeforeSave: false });
 
     res.status(201).json(new ApiResponse(200, createdResult, "Result Submitted Successfully"));
   }

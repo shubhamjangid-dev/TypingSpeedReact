@@ -88,14 +88,14 @@ const getCurrentUser = async function (accessToken) {
   }).catch(error => console.error(error));
 };
 
-const refreshAccessToken = async function () {
+const refreshAccessToken = async function (refreshToken) {
   return await fetch(`${backend_host_url}/users/refresh-token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      refreshToken: localStorage.getItem("refreshToken"),
+      refreshToken,
     }),
   }).catch(error => console.error(error));
 };

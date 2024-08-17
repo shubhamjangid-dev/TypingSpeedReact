@@ -10,16 +10,19 @@ function Login() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    refreshAccessToken()
-      .then(response => response.json())
-      .then(result => {
-        if (result.success) {
-          localStorage.setItem("accessToken", result.data.accessToken);
-          localStorage.setItem("refreshToken", result.data.refreshToken);
-          dispatch(setUserData(result.data.user));
-          navigate("/");
-        }
-      });
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (refreshToken) {
+      refreshAccessToken(refreshToken)
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            localStorage.setItem("accessToken", result.data.accessToken);
+            localStorage.setItem("refreshToken", result.data.refreshToken);
+            dispatch(setUserData(result.data.user));
+            navigate("/");
+          }
+        });
+    }
   }, []);
   const handleSubmit = () => {
     loginService(userName, password)

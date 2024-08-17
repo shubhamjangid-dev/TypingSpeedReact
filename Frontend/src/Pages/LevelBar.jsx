@@ -3,9 +3,11 @@ import LevelCard from "../components/LevelCard";
 import { allLevels } from "../Api/service";
 import { useDispatch } from "react-redux";
 import { setLevelArray } from "../store/userSlice";
+import Loader from "../components/Loader";
 
 function LevelBar() {
   const [allLevelData, setAllLevelData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   useEffect(() => {
     allLevels()
@@ -13,11 +15,18 @@ function LevelBar() {
       .then(result => {
         setAllLevelData(result);
         dispatch(setLevelArray(result));
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
   console.log("123 ", allLevelData);
 
-  return (
+  return loading ? (
+    <>
+      <Loader />
+    </>
+  ) : (
     <div className="bg-blue-200">
       <div className="md:w-3/4 w-full px-[5%] text-left">
         <div className="px-10"> 50% progress | </div>

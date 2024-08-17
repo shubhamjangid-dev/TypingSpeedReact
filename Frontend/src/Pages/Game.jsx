@@ -14,6 +14,12 @@ function Game() {
   const [loading, setLoading] = useState(true);
 
   const { levelNo } = useParams();
+  const numberOfLevelsPassed = useSelector(state => state.userData.userData.numberOfLevelsPassed);
+
+  if (levelNo > numberOfLevelsPassed + 1) {
+    return <>sorry you are not allowed to access this level. please pass the previous levels</>;
+  }
+
   const [words, setWords] = useState("abcd");
   const levelArray = useSelector(state => state.userData.levelArray);
   const [levelId, setLevelId] = useState(levelArray[levelNo - 1]?.levelId);
@@ -21,7 +27,6 @@ function Game() {
   console.log();
 
   useEffect(() => {
-    console.log(loading);
     if (levelArray.length == 0)
       allLevels()
         .then(response => response.json())
@@ -31,7 +36,6 @@ function Game() {
         });
   }, []);
   const callApi = useCallback(() => {
-    console.log(loading);
     getLevelContent(levelId)
       .then(response => response.json())
       .then(result => {
@@ -46,7 +50,7 @@ function Game() {
   }, [levelId]);
 
   useEffect(() => {
-    callApi();
+    if (levelNo <= numberOfLevelsPassed + 1) callApi();
   }, [levelId]);
 
   const inputRef = useRef(null);
