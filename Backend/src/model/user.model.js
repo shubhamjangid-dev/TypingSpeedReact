@@ -33,6 +33,10 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
+    topSpeed: {
+      type: Number,
+      default: 0,
+    },
     numberOfLevelsPassed: {
       type: Number,
       default: 0,

@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../model/user.model.js";
+import { LevelAchieved } from "../model/levelAchieved.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
@@ -220,11 +221,16 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
+  const { oldPassword, newPassword, confirmPassword } = req.body;
 
   // agr vo password change kr raha h to mtlb vo logged h
   // to req me user bhi hoga
-  const user = User.findById(req.user?._id);
+  // console.log(req.body);
+  if (newPassword != confirmPassword) {
+    throw new ApiError(401, "New password & Confirm password is not same");
+  }
+
+  const user = await User.findById(req.user?._id);
 
   const isCorrectPassword = await user.isPasswordCorrect(oldPassword);
 
@@ -238,14 +244,16 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-  console.log(req.user);
+  // console.log(req.user);
   return res.status(200).json(new ApiResponse(200, req.user, "current user fetched successfully"));
 });
 
 const updateUserDetails = asyncHandler(async (req, res) => {
-  const { fullname, email } = req.body;
+  // console.log(req.body);
 
-  if (!fullname || !email) {
+  const { fullname, email, username } = req.body;
+
+  if (!fullname || !email || !username) {
     throw new ApiError(400, "All fields are required");
   }
 
@@ -255,6 +263,7 @@ const updateUserDetails = asyncHandler(async (req, res) => {
       $set: {
         fullname,
         email,
+        username,
       },
     },
     {
@@ -265,43 +274,19 @@ const updateUserDetails = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, user, "User details updated successfully"));
 });
 
-const getUserLevelBoard = asyncHandler(async (req, res) => {
-  const id = req.user?._id;
+const getUserRank = asyncHandler(async (req, res) => {
+  const rank = await User.countDocuments({ totalScore: { $gt: req.user?.totalScore } });
+  console.log("123", rank);
 
-  // Aggregate Pipeline read docs on mongodb
-  const levelData = await User.aggregate([
-    {
-      $match: {
-        _id: id,
-      },
-    },
-    {
-      $lookup: {
-        from: "levelachieveds",
-        localField: "_id",
-        foreignField: "user",
-        as: "achievements",
-      },
-    },
-    {
-      $unwind: "$achievements",
-    },
-    {
-      $project: {
-        levelId: "$achievements.level",
-        score: "$achievements.score",
-      },
-    },
-  ]);
-
-  // console.log(channels);
-
-  // if(!levelData.length)
-  // {
-  //     throw new ApiError(404,"LevelData does not Exist")
-  // }
-
-  return res.status(200).json(levelData);
+  return res.status(200).json(rank);
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateUserDetails, getUserLevelBoard };
+const deleteAccount = asyncHandler(async (req, res) => {
+  const id = req.user?._id;
+  const deletedUser = await User.deleteOne({ _id: id });
+  const deletedLevels = await LevelAchieved.deleteMany({ user: id });
+
+  return res.status(200).json(new ApiResponse(200, {}, "Account deleted successfully"));
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateUserDetails, getUserRank, deleteAccount };

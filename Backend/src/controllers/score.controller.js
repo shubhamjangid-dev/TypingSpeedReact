@@ -22,6 +22,9 @@ const submitResult = asyncHandler(async (req, res) => {
   if (!userExist) {
     throw new ApiError(409, "User not found");
   }
+  // update Top Speed
+
+  userExist.topSpeed = Math.max(userExist.topSpeed, score);
   // if level is already completed
   const resultExist = await LevelAchieved.findOne({
     level: levelExist._id,
