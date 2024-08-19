@@ -56,7 +56,7 @@ function Game() {
   const inputRef = useRef(null);
   const charRef = useRef([]);
 
-  const [start, setStart] = useState([false, new Date()]);
+  const [start, setStart] = useState([false, new Date(), 0]);
   const [gameEnd, setGameEnd] = useState(false);
 
   const [charIndex, setCharIndex] = useState(0);
@@ -87,14 +87,14 @@ function Game() {
   }, [loading]);
 
   const handleInput = e => {
-    if (start[0] == false) {
-      setStart([true, new Date()]);
-    }
     const characters = charRef.current;
     const currentChar = charRef.current[charIndex];
     const typedChar = e.target.value.slice(-1);
     // console.log(typedChar, " ", currentChar.textContent);
     // console.log(correctChar);
+    if (start[0] == false) {
+      setStart([true, new Date(), currentChar.offsetTop]);
+    }
 
     if (e.nativeEvent.inputType === "deleteContentBackward") {
       // Handle backspace
@@ -127,10 +127,11 @@ function Game() {
       }
       setCharIndex(charIndex + 1);
     }
+    // console.log(currentChar.offsetTop - start[2]);
 
-    if (currentChar.offsetTop >= 100) {
+    if (currentChar.offsetTop - start[2] >= 100) {
       setMargin(margin - 60);
-    } else if (currentChar.offsetTop < 20 && margin < 0) {
+    } else if (currentChar.offsetTop - start[2] < 0 && margin < 0) {
       setMargin(margin + 60);
     }
   };

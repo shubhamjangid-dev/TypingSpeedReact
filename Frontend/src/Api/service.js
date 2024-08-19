@@ -88,6 +88,55 @@ const getCurrentUser = async function (accessToken) {
   }).catch(error => console.error(error));
 };
 
+const updateUserDetails = async function (data) {
+  return await fetch(`${backend_host_url}/users/updateUser`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accessToken: localStorage.getItem("accessToken"),
+      ...data,
+    }),
+  }).catch(error => console.error(error));
+};
+const changeCurentPassword = async function (data) {
+  return await fetch(`${backend_host_url}/users/changePassword`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accessToken: localStorage.getItem("accessToken"),
+      ...data,
+    }),
+  }).catch(error => console.error(error));
+};
+
+const getUserRank = async function () {
+  return await fetch(`${backend_host_url}/users/getUserRank`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accessToken: localStorage.getItem("accessToken"),
+    }),
+  }).catch(error => console.error(error));
+};
+
+const deleteAccount = async function () {
+  return await fetch(`${backend_host_url}/users/deleteAccount`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accessToken: localStorage.getItem("accessToken"),
+    }),
+  }).catch(error => console.error(error));
+};
+
 const refreshAccessToken = async function (refreshToken) {
   return await fetch(`${backend_host_url}/users/refresh-token`, {
     method: "POST",
@@ -100,4 +149,17 @@ const refreshAccessToken = async function (refreshToken) {
   }).catch(error => console.error(error));
 };
 
-export { allLevels, getLevelContent, submitResult, loginService, registerService, logoutService, getCurrentUser, refreshAccessToken };
+export {
+  allLevels,
+  getLevelContent,
+  submitResult,
+  loginService,
+  registerService,
+  logoutService,
+  getCurrentUser,
+  updateUserDetails,
+  getUserRank,
+  deleteAccount,
+  changeCurentPassword,
+  refreshAccessToken,
+};
