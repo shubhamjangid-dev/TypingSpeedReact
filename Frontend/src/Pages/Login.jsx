@@ -33,6 +33,9 @@ function Login() {
           localStorage.setItem("refreshToken", response.data.refreshToken);
           dispatch(setUserData(response.data.user));
           navigate("/");
+        } else {
+          setError(response.message);
+          console.log("res", response);
         }
       })
       .catch(error => {
@@ -41,6 +44,7 @@ function Login() {
   };
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   return (
     <div className="w-full min-h-screen align-middle">
       <div className="w-full h-full px-10 py-20">
@@ -55,7 +59,7 @@ function Login() {
               Sign Up
             </Link>
           </p>
-          {/* {error && <p className="text-red-600 mt-8 text-center">{error}</p>} */}
+          {/* {error && <p className="text-red-500 text-center">{error}</p>} */}
           <input
             className="w-full h-10 px-2 my-2 rounded-full border-[1px] border-black"
             type="text"
@@ -81,6 +85,7 @@ function Login() {
             Login
           </button>
         </div>
+        <div className="max-w-sm text-sm text-red-500 py-2">{error}</div>
       </div>
     </div>
   );

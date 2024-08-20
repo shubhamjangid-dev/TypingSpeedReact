@@ -42,23 +42,28 @@ const registerUser = asyncHandler(async (req, res) => {
   const { fullname, email, username, password } = req.body;
   // console.log(req.body);
   if (fullname.trim() === "") {
-    throw new ApiError(400, "Enter valid name");
+    return res.status(409).json(new ApiResponse(409, {}, "Enter valid name"));
+    // throw new ApiError(400, "Enter valid name");
   }
   if (email.trim() === "" || !email.trim().includes("@")) {
-    throw new ApiError(400, "Enter valid email");
+    return res.status(409).json(new ApiResponse(409, {}, "Enter valid email"));
+    // throw new ApiError(400, "Enter valid email");
   }
   if (username.trim() === "") {
-    throw new ApiError(400, "Enter valid username");
+    return res.status(409).json(new ApiResponse(409, {}, "Enter valid username"));
+    // throw new ApiError(400, "Enter valid username");
   }
   if (password.trim() === "") {
-    throw new ApiError(400, "Enter valid password");
+    return res.status(409).json(new ApiResponse(409, {}, "Enter valid password"));
+    // throw new ApiError(400, "Enter valid password");
   }
 
   const userExist = await User.findOne({
     $or: [{ username }, { email }],
   });
   if (userExist) {
-    throw new ApiError(409, "User already exist");
+    return res.status(409).json(new ApiResponse(409, {}, "User already exist"));
+    // throw new ApiError(409, "User already exist");
   }
 
   const userdata = await User.create({
@@ -71,6 +76,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const createdUser = await User.findById(userdata._id).select("-password -refreshTokens");
 
   if (!createdUser) {
+    return res.status(500).json(new ApiResponse(500, {}, "Somthing went wrong while uploading data to database"));
     throw new ApiError(500, "Somthing went wrong while uploading data to database");
   }
 
@@ -108,18 +114,21 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
   // console.log(username, email, password);
   if (!email && !username) {
-    throw new ApiError(400, "username or password required");
+    return res.status(400).json(new ApiResponse(400, {}, "username or password required"));
+    // throw new ApiError(400, "username or password required");
   }
   const user = await User.findOne({
     $or: [{ username }, { email }],
   });
   if (!user) {
-    throw new ApiError(404, "User does not exist");
+    return res.status(401).json(new ApiResponse(401, {}, "User does not exist"));
+    // throw new ApiError(404, "User does not exist");
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
   if (!isPasswordValid) {
-    throw new ApiError(401, "Invalid User Credentials");
+    return res.status(401).json(new ApiResponse(401, {}, "Invalid User Credentials"));
+    // throw new ApiError(401, "Invalid User Credentials");
   }
 
   const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken(user._id);

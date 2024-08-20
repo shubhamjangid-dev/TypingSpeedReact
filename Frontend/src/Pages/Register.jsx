@@ -12,11 +12,16 @@ function Register() {
     registerService(fullName, userEmail, userName, password)
       .then(response => response.json())
       .then(response => {
+        console.log(response);
+
         if (response.success) {
           localStorage.setItem("accessToken", response.data.accessToken);
           localStorage.setItem("refreshToken", response.data.refreshToken);
           dispatch(setUserData(response.data.user));
           navigate("/level");
+        } else {
+          setError(response.message);
+          console.log("res", response);
         }
       })
       .catch(error => {
@@ -27,6 +32,7 @@ function Register() {
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   return (
     <div className="w-full min-h-screen align-middle">
       <div className="w-full h-full px-10 py-20">
@@ -85,6 +91,7 @@ function Register() {
             Register
           </button>
         </div>
+        <div className="max-w-sm text-sm text-red-500 py-2">{error}</div>
       </div>
     </div>
   );

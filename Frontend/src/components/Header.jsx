@@ -1,7 +1,7 @@
 import React from "react";
 import Icon from "./Icon.jsx";
 import { UserRound } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 function Header() {
   const navigate = useNavigate();

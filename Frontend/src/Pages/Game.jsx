@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { allLevels, getLevelContent, submitResult } from "../Api/service";
 import { useDispatch, useSelector } from "react-redux";
 import Result from "../components/Result";
-import Header from "../components/Header";
 import Loader from "../components/Loader";
 import { setLevelArray } from "../store/userSlice";
 function Game() {
@@ -16,24 +15,20 @@ function Game() {
   const { levelNo } = useParams();
   const numberOfLevelsPassed = useSelector(state => state.userData.userData.numberOfLevelsPassed);
 
-  if (levelNo > numberOfLevelsPassed + 1) {
-    return <>sorry you are not allowed to access this level. please pass the previous levels</>;
-  }
-
   const [words, setWords] = useState("abcd");
   const levelArray = useSelector(state => state.userData.levelArray);
   const [levelId, setLevelId] = useState(levelArray[levelNo - 1]?.levelId);
   const [levelname, setLevelname] = useState("");
-  console.log();
 
   useEffect(() => {
-    if (levelArray.length == 0)
+    if (levelArray.length == 0) {
       allLevels()
         .then(response => response.json())
         .then(result => {
           setLevelId(result[levelNo - 1].levelId);
           dispatch(setLevelArray(result));
         });
+    }
   }, []);
   const callApi = useCallback(() => {
     getLevelContent(levelId)
@@ -136,6 +131,9 @@ function Game() {
     }
   };
 
+  if (levelNo > numberOfLevelsPassed + 1) {
+    return <>sorry you are not allowed to access this level. please pass the previous levels</>;
+  }
   return (
     <>
       {gameEnd && (

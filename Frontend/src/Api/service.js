@@ -48,7 +48,7 @@ const loginService = async function (username, password) {
       username,
       password,
     }),
-  }).catch(error => console.error(error));
+  }); //.catch(error => console.error(error));
 };
 const registerService = async function (fullname, email, username, password) {
   return await fetch(`${backend_host_url}/users/register`, {
@@ -89,6 +89,8 @@ const getCurrentUser = async function (accessToken) {
 };
 
 const updateUserDetails = async function (data) {
+  console.log(data);
+
   return await fetch(`${backend_host_url}/users/updateUser`, {
     method: "POST",
     headers: {
