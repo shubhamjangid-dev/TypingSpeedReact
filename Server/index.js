@@ -13,7 +13,9 @@ const io = new Server(server, {
     origin: "*",
   },
 });
-
+app.get("/", (req, res) => {
+  res.send("<h1>Web Socket Server Running ... </h1>");
+});
 const rooms = {};
 const privateRooms = {};
 // structure of room = {
