@@ -12,6 +12,22 @@ import Register from "./Pages/Register.jsx";
 import Home from "./Pages/Home.jsx";
 import AuthLayout from "./components/AuthLayout.jsx";
 import Profile from "./Pages/Profile.jsx";
+import RoomSelection from "./gameSocket/RoomSelection.jsx";
+import LiveGame from "./gameSocket/LiveGame.jsx";
+
+// socket io
+import { io } from "socket.io-client";
+const socket = io(import.meta.env.VITE_SOCKET_HOST_URL);
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <RouterProvider>
+        <RoomSelection socket={socket} />
+      </RouterProvider>
+    </Provider>
+  </React.StrictMode>
+);
 const router = createBrowserRouter([
   {
     path: "/",
@@ -58,6 +74,22 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={true}>
             <Profile />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/live",
+        element: (
+          <AuthLayout authentication={true}>
+            <RoomSelection socket={socket} />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/live/:roomId",
+        element: (
+          <AuthLayout authentication={true}>
+            <LiveGame socket={socket} />
           </AuthLayout>
         ),
       },
