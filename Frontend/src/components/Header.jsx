@@ -9,7 +9,7 @@ function Header() {
   const isLoggedIn = useSelector(state => state.userData.isUserLoggedIn);
 
   return (
-    <nav className="w-full flex justify-between text-lg p-2 bg-gray-800 text-white sticky top-0 z-10">
+    <nav className="w-full flex justify-between text-lg p-2 bg-gray-800 text-white fixed top-0 z-10">
       <div className="flex">
         <div
           onClick={() => {

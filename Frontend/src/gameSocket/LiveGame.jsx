@@ -7,7 +7,7 @@ import Result from "../components/Result";
 import Loader from "../components/Loader";
 import { setLevelArray } from "../store/userSlice";
 import WaitingUser from "./WaitingUser.jsx";
-
+import parse from "html-react-parser";
 function LiveGame({ socket }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -16,6 +16,7 @@ function LiveGame({ socket }) {
   // web socket
   const [words, setWords] = useState("a room with words and set words array and play game with your favorite  or your friend live");
   const [opponentIndex, setOpponentIndex] = useState(0);
+  const [opponentName, setOpponentName] = useState("");
   const isFirstRender = useRef(true);
 
   useEffect(() => {
@@ -44,12 +45,19 @@ function LiveGame({ socket }) {
     socket.on("get-room-info", payload => {
       if (payload.playerOne != null && payload.playerTwo != null) {
         // ready and cancel button try kro fir usee bhi ek stage ki trh treate kro
-        TODO: socket.emit("start-game", { roomId });
+        if (payload.playerOne._id == user._id) {
+          setOpponentName(payload.playerTwo.fullname);
+        } else if (payload.playerTwo._id == user._id) {
+          setOpponentName(payload.playerOne.fullname);
+        }
+        TODO: startGame();
       }
     });
     socket.on("start-game", payload => {
       setWords(payload.str);
-      setSearchingUser(1);
+      setTimeout(() => {
+        setSearchingUser(2);
+      }, 1000);
     });
   });
   const sendData = dir => {
@@ -61,8 +69,12 @@ function LiveGame({ socket }) {
     });
   };
 
+  const startGame = () => {
+    socket.emit("start-game", { roomId });
+  };
+
   // game
-  const [searchingUser, setSearchingUser] = useState(2);
+  const [searchingUser, setSearchingUser] = useState(3);
 
   const inputRef = useRef(null);
   const charRef = useRef([]);
@@ -142,27 +154,31 @@ function LiveGame({ socket }) {
       setCharIndex(charIndex + 1);
       sendData(1); // one means next
     }
-    // console.log(currentChar.offsetTop - start[2]);
+    console.log(currentChar.offsetTop);
     if (currentChar.offsetTop - start[2] >= 100) {
-      setMargin(margin - 60);
+      setMargin(margin - 92);
     } else if (currentChar.offsetTop - start[2] < 0 && margin < 0) {
-      setMargin(margin + 60);
+      setMargin(margin + 92);
     }
   };
+  // let index = 0;
   const [countDown, setCountDown] = useState(5);
   useEffect(() => {
-    if (searchingUser == 1 && countDown >= 0) {
+    if (searchingUser <= 2 && countDown >= 0) {
       const timer = setTimeout(() => {
         setCountDown(countDown - 1);
         if (countDown == 0) {
           setSearchingUser(0);
+        }
+        if (countDown == 4) {
+          setSearchingUser(1);
         }
       }, 1000); // 1000ms = 1 second
 
       return () => clearTimeout(timer); // Cleanup the timer on unmount or re-render
     }
   }, [countDown, searchingUser]);
-  if (searchingUser == 2) return <WaitingUser />;
+  if (searchingUser > 1) return <WaitingUser displayCode={searchingUser} />;
   return (
     <>
       {searchingUser == 1 && <div className="text-9xl flex fixed z-10 top-1/2 left-1/2 drop-shadow-xl -translate-x-1/2 -translate-y-1/2 ">{countDown}</div>}
@@ -211,6 +227,7 @@ function LiveGame({ socket }) {
                       className={`${charIndex == index ? "border-b-4 border-blue-500" : ""}`}
                       isCorrect={correctChar[index]}
                       isOpponentCorrect={opponentCorrectChar[index]}
+                      opponentName={opponentName}
                     />
                   ))}
               </div>
