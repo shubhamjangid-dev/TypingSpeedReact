@@ -19,10 +19,10 @@ function PasswordChangeForm() {
     <>
       <h1 className="text-2xl font-semibold text-left px-1 py-2">Change Password</h1>
       <form onSubmit={handleSubmit(changePassword)}>
-        <div className="w-full  bg-white rounded-lg flex">
+        <div className="w-full  bg-white rounded-lg flex border-[1px] border-black/30">
           <div className="w-full flex flex-col m-2 sm:m-5 text-left text-[14px] sm:text-[16px]">
             <div className="flex m-2 sm:m-3">
-              <h1 className="w-[120px]">Old Password :</h1>
+              <h1 className="w-[110px] sm:w-[120px]">Old Password:</h1>
               <input
                 type="password"
                 className="bg-transparent outline-none px-2 rounded-sm border-[1px] border-gray-300"
@@ -31,7 +31,7 @@ function PasswordChangeForm() {
               />
             </div>
             <div className="flex m-2 sm:m-3">
-              <h1 className="w-[120px]">New Password :</h1>
+              <h1 className="w-[110px] sm:w-[120px]">New Password:</h1>
               <input
                 type="password"
                 className="bg-transparent outline-none px-2 rounded-sm border-[1px] border-gray-300"
@@ -40,7 +40,7 @@ function PasswordChangeForm() {
               />
             </div>
             <div className="flex m-2 sm:m-3">
-              <h1 className="w-[120px]">New Password :</h1>
+              <h1 className="w-[110px] sm:w-[120px]">New Password:</h1>
               <input
                 type="password"
                 className="bg-transparent outline-none px-2 rounded-sm border-[1px] border-gray-300"
@@ -52,9 +52,9 @@ function PasswordChangeForm() {
           <div className="w-[10%] flex justify-end pr-2 pt-2">
             <button
               type="submit"
-              className="w-6 h-6"
+              className="w-4 h-4 sm:w-6 sm:h-6"
             >
-              <Save />
+              <Save className="w-full h-full" />
             </button>
           </div>
         </div>

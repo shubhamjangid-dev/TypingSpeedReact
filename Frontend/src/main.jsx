@@ -19,15 +19,6 @@ import LiveGame from "./gameSocket/LiveGame.jsx";
 import { io } from "socket.io-client";
 const socket = io(import.meta.env.VITE_SOCKET_HOST_URL);
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <RouterProvider>
-        <RoomSelection socket={socket} />
-      </RouterProvider>
-    </Provider>
-  </React.StrictMode>
-);
 const router = createBrowserRouter([
   {
     path: "/",

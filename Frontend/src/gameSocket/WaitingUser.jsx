@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { UserRound } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-function WaitingUser({ displayCode }) {
+import { useSelector } from "react-redux";
+function WaitingUser({ displayCode, opponentName, socket }) {
   // displaycode  3 -> searching
   //              2 -> found and confirmation
   //              1 -> countDown
 
   const { roomId } = useParams();
   const navigate = useNavigate();
-  const [link, setLink] = useState("typingclub.shubhamjangir.in/live/" + roomId);
+  const [link, setLink] = useState("typingzone.shubhamjangir.in/live/" + roomId);
   const [isCopied, setIsCopied] = useState(false);
+  const user = useSelector(state => state.userData.userData);
 
   const linkRef = useRef(null);
   const copyToClipBoard = () => {
@@ -23,6 +25,7 @@ function WaitingUser({ displayCode }) {
         <div className={`bg-blue-100 rounded-full p-4 transition-transform duration-300 ease-in ${displayCode == 3 ? "animate-rotateY-anim" : "scale-125"}`}>
           <UserRound size={100} />
         </div>
+        <h1 className="text-lg my-5">{displayCode == 2 ? opponentName : "searching..."}</h1>
         <h1 className="text-lg my-5">
           {displayCode == 3 && "Waiting for your friend..."}
           {displayCode == 2 && "starting the game"}
@@ -65,6 +68,7 @@ function WaitingUser({ displayCode }) {
       <div className={`bg-blue-100 rounded-full p-4 transition-transform duration-300 ease-in ${displayCode == 3 ? "animate-rotateY-anim" : "scale-125"}`}>
         <UserRound size={100} />
       </div>
+      <h1 className="text-lg my-5">{displayCode == 2 ? opponentName : "searching..."}</h1>
       <h1 className="text-lg my-5">
         {displayCode == 3 && "Waiting for another User..."}
         {displayCode == 2 && "starting the game"}
@@ -73,6 +77,7 @@ function WaitingUser({ displayCode }) {
         <button
           className="bg-red-500  text-white px-4 py-1 rounded-sm mt-2 "
           onClick={() => {
+            socket.emit("exit-room", { roomId, user });
             navigate("/live");
             //TODO:  delete the room
           }}

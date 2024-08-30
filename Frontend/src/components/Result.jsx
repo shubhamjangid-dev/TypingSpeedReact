@@ -12,6 +12,7 @@ function Result({ fail, data }) {
           src={fail ? BetterLuckNextTime : Congratulations}
           alt={`${fail} ?"BetterLuckNextTime" : "Congratulations" `}
           width={500}
+          className="rounded-2xl"
         />
       </div>
       <div className="w-full flex mb-10 mx-auto justify-evenly text-black/70">

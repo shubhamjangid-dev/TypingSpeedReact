@@ -9,7 +9,7 @@ function Header() {
   const isLoggedIn = useSelector(state => state.userData.isUserLoggedIn);
 
   return (
-    <nav className="w-full flex justify-between text-lg p-2 bg-gray-800 text-white fixed top-0 z-10">
+    <nav className="w-full flex justify-between text-lg p-2 bg-black/90 text-white/90 sticky top-0 z-10">
       <div className="flex">
         <div
           onClick={() => {
@@ -19,12 +19,12 @@ function Header() {
           <Icon name="menu" />
         </div>
         <h1
-          className="ml-2"
+          className="ml-2 font-semibold tracking-widest"
           onClick={() => {
             navigate("/");
           }}
         >
-          TypingTest
+          TypingZone
         </h1>
       </div>
       {isLoggedIn ? (

@@ -13,10 +13,19 @@ export default {
           "0%": { transform: "rotateY(0deg)" },
           "100%": { transform: "rotateY(360deg)" },
         },
+        slideInFromTop: {
+          "0%": {
+            transform: "translateY(-100%)",
+          },
+          "100%": {
+            transform: "translateY(0)",
+          },
+        },
       },
       animation: {
         drop: "drop 1s",
         "rotateY-anim": "rotateY 1.5s linear infinite",
+        "slideInFromTop-anim": "slideInFromTop 0.1s linear",
       },
     },
   },

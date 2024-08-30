@@ -137,7 +137,7 @@ function Game() {
   return (
     <>
       {gameEnd && (
-        <div className="flex fixed z-10 top-1/2 left-1/2 drop-shadow-xl -translate-x-1/2 -translate-y-1/2">
+        <div className="flex fixed z-10 top-1/2 left-1/2 drop-shadow-xl -translate-x-1/2 -translate-y-1/2 ">
           <Result
             fail={accuracy < 80 ? 1 : wordPerMinute < 10 ? 2 : 0}
             data={{
@@ -151,22 +151,22 @@ function Game() {
         </div>
       )}
       <div className={`w-full bg-white ${gameEnd ? "blur-sm" : " "}`}>
-        <div className="w-4/5 h-10 mx-auto text-left  py-2">
-          <div className="w-full h-5 text-xl font-thin">
+        <div className="max-w-screen-lg h-12 mx-auto md:px-8 px-2 text-left py-2 ">
+          <div className="w-full h-8 text-xl font-thin">
             Level {levelNo} : {levelname}{" "}
           </div>
-          <div className="w-[8%] h-40 text-lg px-2 pb-3 bg-blue-500 -translate-x-[130%] -translate-y-7 rounded-b-xl flex flex-col-reverse text-white ">Start Typing</div>
+          {/* <div className="w-[8%] h-40 text-lg px-2 pb-3 bg-blue-500 -translate-x-[130%] -translate-y-7 rounded-b-xl flex flex-col-reverse text-white ">Start Typing</div> */}
         </div>
-        <div className="h-60 w-4/5 mx-auto">
+        <div className="max-w-screen-lg mx-auto md:px-8 px-2 ">
           <div className="w-full text-left flex flex-col">
             <input
               type="text"
-              className="w-1/2 m-auto"
+              className="w-1/2 m-auto translate-y-5"
               ref={inputRef}
               onChange={!gameEnd ? handleInput : null}
             />
             <div
-              className="font-mono bg-white rounded-xl drop-shadow-xl  text-gray-500 text-4xl leading-relaxed h-52 px-3 py-5 overflow-clip mt-[-30px]"
+              className="font-mono bg-white rounded-xl drop-shadow-xl  text-gray-500 text-4xl leading-relaxed h-52 px-3 py-2 overflow-clip mt-[-20px] animate-slideInFromTop-anim"
               onClick={() => inputRef.current.focus()}
             >
               <div

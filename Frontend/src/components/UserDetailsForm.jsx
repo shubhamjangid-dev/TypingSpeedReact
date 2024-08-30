@@ -34,7 +34,7 @@ function UserDetailsForm() {
     <>
       <h1 className="text-2xl font-semibold text-left px-1 py-2">User Details</h1>
       <form onSubmit={handleSubmit(updateDetail)}>
-        <div className="w-full  bg-white rounded-lg flex">
+        <div className="w-full  bg-white rounded-lg flex border-[1px] border-black/30">
           <div className="w-full flex flex-col m-2 sm:m-5 text-left text-[14px] sm:text-[16px]">
             <div className="flex m-2 sm:m-3">
               <h1 className="w-[120px]">Full Name :</h1>
@@ -73,13 +73,14 @@ function UserDetailsForm() {
                 onClick={() => {
                   setIsUserDetailsEditable(true);
                 }}
+                className="w-4 h-4 sm:w-6 sm:h-6"
               />
             ) : (
               <button
                 type="submit"
-                className="w-6 h-6"
+                className="w-4 h-4 sm:w-6 sm:h-6"
               >
-                <Save />
+                <Save className="w-full h-full" />
               </button>
             )}
           </div>
