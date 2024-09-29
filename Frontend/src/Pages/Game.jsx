@@ -166,7 +166,7 @@ function Game() {
               onChange={!gameEnd ? handleInput : null}
             />
             <div
-              className="font-mono bg-white rounded-xl drop-shadow-xl  text-gray-500 text-4xl leading-relaxed h-52 px-3 py-2 overflow-clip mt-[-20px] animate-slideInFromTop-anim"
+              className="font-mono bg-white rounded-xl drop-shadow-xl  text-gray-500 text-4xl leading-relaxed h-48 px-3 py-2 overflow-clip mt-[-20px] animate-slideInFromTop-anim"
               onClick={() => inputRef.current.focus()}
             >
               <div

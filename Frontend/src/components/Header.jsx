@@ -16,10 +16,13 @@ function Header() {
             navigate("/level");
           }}
         >
-          <Icon name="menu" />
+          <Icon
+            name="menu"
+            className="cursor-pointer"
+          />
         </div>
         <h1
-          className="ml-2 font-semibold tracking-widest"
+          className="ml-2 font-semibold tracking-widest cursor-pointer"
           onClick={() => {
             navigate("/");
           }}
@@ -29,7 +32,7 @@ function Header() {
       </div>
       {isLoggedIn ? (
         <div
-          className="flex mr-1 text-md"
+          className="flex mr-1 text-md cursor-pointer"
           onClick={() => {
             navigate("/profile");
           }}
@@ -40,7 +43,7 @@ function Header() {
         </div>
       ) : (
         <div
-          className="flex mr-1 text-md"
+          className="flex mr-1 text-md cursor-pointer"
           onClick={() => {
             navigate("/login");
           }}

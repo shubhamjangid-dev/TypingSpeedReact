@@ -51,6 +51,7 @@ function WaitingUser({ displayCode, opponentName, socket }) {
             <button
               className="bg-red-500  text-white px-4 py-1 rounded-sm mt-3 "
               onClick={() => {
+                socket.emit("exit-room", { roomId, user });
                 navigate("/live");
                 //TODO:  delete the room
               }}

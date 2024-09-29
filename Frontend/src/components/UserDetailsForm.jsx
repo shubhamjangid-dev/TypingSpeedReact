@@ -8,14 +8,15 @@ import { setUserData } from "../store/userSlice";
 function UserDetailsForm() {
   const dispatch = useDispatch();
   const user = useSelector(state => state.userData.userData);
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, reset } = useForm();
 
+  const [message, setMessage] = useState("");
   const [isUserDetailsEditable, setIsUserDetailsEditable] = useState(false);
 
   const updateDetail = data => {
     console.log(data);
-
-    console.log("", data.username != user.username || data.fullname != user.fullname);
+    setMessage("");
+    // console.log("", data.username != user.username || data.fullname != user.fullname);
 
     if (data.username != user.username || data.fullname != user.fullname) {
       updateUserDetails(data)
@@ -24,16 +25,24 @@ function UserDetailsForm() {
           console.log(result);
           if (result.success) {
             dispatch(setUserData(result.data));
+          } else {
+            setMessage(result.errormessage);
+            reset();
+            return;
           }
         });
     }
-
     setIsUserDetailsEditable(false);
   };
   return (
     <>
       <h1 className="text-2xl font-semibold text-left px-1 py-2">User Details</h1>
-      <form onSubmit={handleSubmit(updateDetail)}>
+      <form
+        onSubmit={handleSubmit(updateDetail)}
+        onChange={() => {
+          setMessage("");
+        }}
+      >
         <div className="w-full  bg-white rounded-lg flex border-[1px] border-black/30">
           <div className="w-full flex flex-col m-2 sm:m-5 text-left text-[14px] sm:text-[16px]">
             <div className="flex m-2 sm:m-3">
@@ -66,6 +75,7 @@ function UserDetailsForm() {
                 readOnly
               />
             </div>
+            {message && <div className="flex mx-2 sm:mx-3 -my-2 text-sm text-red-500">{message}</div>}
           </div>
           <div className="w-[10%] flex justify-end pr-2 pt-2">
             {!isUserDetailsEditable ? (

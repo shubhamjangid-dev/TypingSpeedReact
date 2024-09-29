@@ -385,6 +385,7 @@ io.on("connection", async socket => {
       playerOne: null,
       playerTwo: null,
       gameFinished: 0,
+      playAgain: null,
     };
     socket.emit("new-game-person", { roomId, socketId: socket.id });
     // console.log("pvt", privateRooms);
@@ -464,6 +465,7 @@ io.on("connection", async socket => {
         playerOne: null,
         playerTwo: null,
         gameFinished: 0,
+        playAgain: null,
       };
       socket.join(roomId);
       socket.emit("new-game-person", { roomId, socketId: socket.id });
@@ -472,7 +474,8 @@ io.on("connection", async socket => {
 
   // exit room
   socket.on("exit-room", payload => {
-    const roomId = payload?.roomId;
+    const roomId = payload.roomId;
+    io.in(roomId).emit("message", "opponent leaved the game");
     socket.leave(roomId);
     if (roomId.length == 10) {
       if (privateRooms[roomId].playerOne && privateRooms[roomId].playerOne._id == payload.user._id) {
@@ -516,14 +519,39 @@ io.on("connection", async socket => {
 
   // game start
   socket.on("play-again", payload => {
-    const roomId = payload?.roomId;
+    const roomId = payload.roomId;
+    const userId = payload.userId;
+    console.log("check  --- ", roomId, " ", userId);
+
     // console.log(roomId);
+    if (roomId.length == 10) {
+      if (privateRooms[roomId].playAgain == null) {
+        privateRooms[roomId].playAgain = userId;
+        socket.in(roomId).emit("message", "opponent want to play again");
+        return;
+      } else if (privateRooms[roomId].playAgain != userId) {
+        privateRooms[roomId].playAgain = null;
+      } else {
+        return;
+      }
+    }
+    if (roomId.length == 8) {
+      if (rooms[roomId].playAgain == null) {
+        rooms[roomId].playAgain = userId;
+        socket.in(roomId).emit("message", "opponent want to play again");
+        return;
+      } else if (rooms[roomId].playAgain != userId) {
+        rooms[roomId].playAgain = null;
+      } else {
+        return;
+      }
+    }
     const str = generateString();
     if (roomId.length == 10) {
-      privateRooms[roomId] = { ...privateRooms[roomId], status: "running", gameFinished: 0, playerOneResult: null, playerTwoResult: null, words: "" };
+      privateRooms[roomId] = { ...privateRooms[roomId], status: "running", gameFinished: 0, playerOneResult: null, playerTwoResult: null, words: str };
       console.log(privateRooms[roomId]);
     } else if (roomId.length == 8) {
-      rooms[roomId] = { ...rooms[roomId], status: "running", gameFinished: 0, playerOneResult: null, playerTwoResult: null, words: "" };
+      rooms[roomId] = { ...rooms[roomId], status: "running", gameFinished: 0, playerOneResult: null, playerTwoResult: null, words: str };
       console.log("room", rooms[roomId]);
     }
 
@@ -566,6 +594,8 @@ io.on("connection", async socket => {
       }
     } else if (roomId.length == 8) {
       console.log(payload);
+      console.log(rooms[roomId]);
+
       if (rooms[roomId].playerOne._id == payload.userId) {
         rooms[roomId].playerOneResult = payload.resultData;
       } else {

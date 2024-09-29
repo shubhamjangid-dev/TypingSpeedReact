@@ -77,7 +77,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (!createdUser) {
     return res.status(500).json(new ApiResponse(500, {}, "Somthing went wrong while uploading data to database"));
-    throw new ApiError(500, "Somthing went wrong while uploading data to database");
+    // throw new ApiError(500, "Somthing went wrong while uploading data to database");
   }
 
   const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken(createdUser._id);
@@ -236,7 +236,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   // to req me user bhi hoga
   // console.log(req.body);
   if (newPassword != confirmPassword) {
-    throw new ApiError(401, "New password & Confirm password is not same");
+    return res.status(401).json(new ApiError(401, "New password & Confirm password is not same"));
   }
 
   const user = await User.findById(req.user?._id);
@@ -244,7 +244,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   const isCorrectPassword = await user.isPasswordCorrect(oldPassword);
 
   if (!isCorrectPassword) {
-    throw new ApiError(401, "Invalid Password");
+    return res.status(401).json(new ApiError(401, "Invalid Password"));
   }
 
   user.password = newPassword;
@@ -263,9 +263,12 @@ const updateUserDetails = asyncHandler(async (req, res) => {
   const { fullname, email, username } = req.body;
 
   if (!fullname || !email || !username) {
-    throw new ApiError(400, "All fields are required");
+    return res.status(200).json(new ApiError(400, "All fields are required"));
   }
-
+  const usernameExist = await User.findOne({ username });
+  if (usernameExist.email != email) {
+    return res.status(200).json(new ApiError(400, "Username already taken"));
+  }
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
